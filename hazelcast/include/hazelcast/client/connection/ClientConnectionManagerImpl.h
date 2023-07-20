@@ -240,8 +240,14 @@ private:
             return;
         }
 
+#ifndef __MVS__
         static thread_local std::random_device rd;
         static thread_local std::mt19937 gen(rd());
+#else
+        // z/OS doesn't have thread local right now
+        std::random_device rd;
+        std::mt19937 gen(rd());
+#endif
 
         std::shuffle(member_addresses.begin(), member_addresses.end(), gen);
     }
@@ -314,8 +320,9 @@ private:
                           boost::hash<boost::uuids::uuid>>
       active_connections_;
     util::SynchronizedMap<int32_t, Connection> active_connection_ids_;
-#ifdef __linux__
+#if defined (__linux__) || defined (__MVS__)
     // default support for 16 byte atomics is missing for linux
+    // (and also z/OS)
     util::Sync<boost::uuids::uuid> cluster_id_;
 #else
     std::atomic<boost::uuids::uuid> cluster_id_;

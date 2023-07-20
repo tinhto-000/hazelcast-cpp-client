@@ -25,6 +25,11 @@
 #pragma warning(disable : 4251) // for dll export
 #endif
 
+#if defined(__MVS__) && defined(RAW)
+// z/OS has RAW #defined for something else
+#undef RAW
+#endif
+
 namespace hazelcast {
 namespace client {
 namespace config {
